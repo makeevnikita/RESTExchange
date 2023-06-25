@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+
+
+
 namespace src
 {
     public class Startup
@@ -11,6 +15,10 @@ namespace src
 
         public void ConfigureServices(IServiceCollection services)
         {
+            string connectionString = Configuration.GetConnectionString("PostgresConnection");
+
+            services.AddDbContext<ApplicationContext>(options =>
+                options.UseNpgsql(connectionString));
             services.AddControllers();
         }
 

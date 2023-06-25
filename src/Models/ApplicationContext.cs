@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -184,7 +185,12 @@ public class ApplicationContext : DbContext
     public DbSet<Order> Order { get; set; }
     public DbSet<Role> Role { get; set; }
     public DbSet<User> User { get; set; }
-    
+
+    public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
+    {
+
+    }   
+     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ClientCurrency>().ToTable("ClientCurrency");
