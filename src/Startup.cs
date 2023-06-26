@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-
+using src.Models;
+using src.Interfaces;
+using src.Repositories;
 
 
 namespace src
@@ -19,6 +21,7 @@ namespace src
 
             services.AddDbContext<ApplicationContext>(options =>
                 options.UseNpgsql(connectionString));
+            services.AddTransient<IRepository<Network>, EFRepository<Network>>();
             services.AddControllers();
         }
 
@@ -27,11 +30,13 @@ namespace src
             app.UseDeveloperExceptionPage();
 
             app.UseRouting();
-
+            
             app.UseEndpoints(endpoints =>
-            {
+            {   
                 endpoints.MapControllers();
             });
+
+            
         }
     }
 }
