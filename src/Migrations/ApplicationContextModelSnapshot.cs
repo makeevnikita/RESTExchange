@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using src.Models;
 
 #nullable disable
 
@@ -21,7 +22,37 @@ namespace rest_exchange.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ClientCurrency", b =>
+            modelBuilder.Entity("ClientCurrencyNetwork", b =>
+                {
+                    b.Property<int>("ClientCurrenciesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("NetworksId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ClientCurrenciesId", "NetworksId");
+
+                    b.HasIndex("NetworksId");
+
+                    b.ToTable("ClientCurrencyNetwork");
+                });
+
+            modelBuilder.Entity("MyCurrencyNetwork", b =>
+                {
+                    b.Property<int>("MyCurrenciesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("NetworksId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("MyCurrenciesId", "NetworksId");
+
+                    b.HasIndex("NetworksId");
+
+                    b.ToTable("MyCurrencyNetwork");
+                });
+
+            modelBuilder.Entity("src.Models.ClientCurrency", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -39,6 +70,9 @@ namespace rest_exchange.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
+                    b.Property<int?>("PaymentMethodId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("ShortName")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -46,25 +80,12 @@ namespace rest_exchange.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ClientCurrency", (string)null);
+                    b.HasIndex("PaymentMethodId");
+
+                    b.ToTable("ClientCurreny");
                 });
 
-            modelBuilder.Entity("ClientCurrencyNetwork", b =>
-                {
-                    b.Property<int>("ClientCurrenciesId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("NetworksId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ClientCurrenciesId", "NetworksId");
-
-                    b.HasIndex("NetworksId");
-
-                    b.ToTable("ClientCurrencyNetwork");
-                });
-
-            modelBuilder.Entity("MyAddresses", b =>
+            modelBuilder.Entity("src.Models.MyAddresses", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -91,7 +112,43 @@ namespace rest_exchange.Migrations
                     b.ToTable("MyAddress");
                 });
 
-            modelBuilder.Entity("Network", b =>
+            modelBuilder.Entity("src.Models.MyCurrency", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Fund")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<int?>("PaymentMethodId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ShortName")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentMethodId");
+
+                    b.ToTable("MyCurrency");
+                });
+
+            modelBuilder.Entity("src.Models.Network", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -108,7 +165,7 @@ namespace rest_exchange.Migrations
                     b.ToTable("Network");
                 });
 
-            modelBuilder.Entity("Order", b =>
+            modelBuilder.Entity("src.Models.Order", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -172,7 +229,7 @@ namespace rest_exchange.Migrations
                     b.ToTable("Order");
                 });
 
-            modelBuilder.Entity("OrderStatus", b =>
+            modelBuilder.Entity("src.Models.OrderStatus", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -190,7 +247,7 @@ namespace rest_exchange.Migrations
                     b.ToTable("OrderStatus");
                 });
 
-            modelBuilder.Entity("PaymentMethod", b =>
+            modelBuilder.Entity("src.Models.PaymentMethod", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -207,7 +264,7 @@ namespace rest_exchange.Migrations
                     b.ToTable("PaymentMethod");
                 });
 
-            modelBuilder.Entity("Role", b =>
+            modelBuilder.Entity("src.Models.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -224,7 +281,7 @@ namespace rest_exchange.Migrations
                     b.ToTable("Role");
                 });
 
-            modelBuilder.Entity("User", b =>
+            modelBuilder.Entity("src.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -250,45 +307,52 @@ namespace rest_exchange.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("MyCurrency", b =>
-                {
-                    b.HasBaseType("ClientCurrency");
-
-                    b.Property<decimal>("Fund")
-                        .HasColumnType("numeric");
-
-                    b.Property<int?>("PaymentMethodId")
-                        .HasColumnType("integer");
-
-                    b.HasIndex("PaymentMethodId");
-
-                    b.ToTable("MyCurrency", (string)null);
-                });
-
             modelBuilder.Entity("ClientCurrencyNetwork", b =>
                 {
-                    b.HasOne("ClientCurrency", null)
+                    b.HasOne("src.Models.ClientCurrency", null)
                         .WithMany()
                         .HasForeignKey("ClientCurrenciesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Network", null)
+                    b.HasOne("src.Models.Network", null)
                         .WithMany()
                         .HasForeignKey("NetworksId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MyAddresses", b =>
+            modelBuilder.Entity("MyCurrencyNetwork", b =>
                 {
-                    b.HasOne("MyCurrency", "Currency")
+                    b.HasOne("src.Models.MyCurrency", null)
+                        .WithMany()
+                        .HasForeignKey("MyCurrenciesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("src.Models.Network", null)
+                        .WithMany()
+                        .HasForeignKey("NetworksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("src.Models.ClientCurrency", b =>
+                {
+                    b.HasOne("src.Models.PaymentMethod", null)
+                        .WithMany("ClientCurrencies")
+                        .HasForeignKey("PaymentMethodId");
+                });
+
+            modelBuilder.Entity("src.Models.MyAddresses", b =>
+                {
+                    b.HasOne("src.Models.MyCurrency", "Currency")
                         .WithMany()
                         .HasForeignKey("CurrencyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Network", "Network")
+                    b.HasOne("src.Models.Network", "Network")
                         .WithMany()
                         .HasForeignKey("NetworkId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -299,33 +363,40 @@ namespace rest_exchange.Migrations
                     b.Navigation("Network");
                 });
 
-            modelBuilder.Entity("Order", b =>
+            modelBuilder.Entity("src.Models.MyCurrency", b =>
                 {
-                    b.HasOne("ClientCurrency", "ClientCurrency")
+                    b.HasOne("src.Models.PaymentMethod", null)
+                        .WithMany("MyCurrencies")
+                        .HasForeignKey("PaymentMethodId");
+                });
+
+            modelBuilder.Entity("src.Models.Order", b =>
+                {
+                    b.HasOne("src.Models.ClientCurrency", "ClientCurrency")
                         .WithMany()
                         .HasForeignKey("ClientCurrencyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Network", "GiveNetwork")
+                    b.HasOne("src.Models.Network", "GiveNetwork")
                         .WithMany()
                         .HasForeignKey("GiveNetworkId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyAddresses", "MyAddress")
+                    b.HasOne("src.Models.MyAddresses", "MyAddress")
                         .WithMany()
                         .HasForeignKey("MyAddressId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyCurrency", "MyCurrency")
+                    b.HasOne("src.Models.MyCurrency", "MyCurrency")
                         .WithMany()
                         .HasForeignKey("MyCurrencyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Network", "ReceiveNetwork")
+                    b.HasOne("src.Models.Network", "ReceiveNetwork")
                         .WithMany()
                         .HasForeignKey("ReceiveNetworkId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -342,9 +413,9 @@ namespace rest_exchange.Migrations
                     b.Navigation("ReceiveNetwork");
                 });
 
-            modelBuilder.Entity("User", b =>
+            modelBuilder.Entity("src.Models.User", b =>
                 {
-                    b.HasOne("Role", "Role")
+                    b.HasOne("src.Models.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -353,25 +424,14 @@ namespace rest_exchange.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("MyCurrency", b =>
+            modelBuilder.Entity("src.Models.PaymentMethod", b =>
                 {
-                    b.HasOne("ClientCurrency", null)
-                        .WithOne()
-                        .HasForeignKey("MyCurrency", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("ClientCurrencies");
 
-                    b.HasOne("PaymentMethod", null)
-                        .WithMany("MyCurrencies")
-                        .HasForeignKey("PaymentMethodId");
-                });
-
-            modelBuilder.Entity("PaymentMethod", b =>
-                {
                     b.Navigation("MyCurrencies");
                 });
 
-            modelBuilder.Entity("Role", b =>
+            modelBuilder.Entity("src.Models.Role", b =>
                 {
                     b.Navigation("Users");
                 });
