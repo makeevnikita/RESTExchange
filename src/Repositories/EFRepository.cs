@@ -34,7 +34,14 @@ public class EFRepository<T> : IRepository<T> where T : class
 
     public T GetById(int id)
     {
-        return _dbSet.Find(id);
+        T item = _dbSet.Find(id);
+
+        if (item != null)
+        {
+            _context.Entry(item).State = EntityState.Detached;
+        }
+
+        return item;
     }
 
     public void Remove(T item)
