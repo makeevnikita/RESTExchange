@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
+namespace src.Models;
+
 public class Network
 {
     // Сеть криптовалюты
@@ -14,12 +16,7 @@ public class Network
     public string Name { get; set; }
 
     public List<ClientCurrency> ClientCurrencies { get; set; } = new List<ClientCurrency>();
-
-    public Network(string name)
-    {
-        Name = name;
-    }
-
+    public List<MyCurrency> MyCurrencies { get; set; } = new List<MyCurrency>();
 }
 
 public class PaymentMethod
@@ -33,8 +30,8 @@ public class PaymentMethod
     [BindRequired]
     public string Name { get; set; }
 
-    // Криптовалюты, которые работают в этой сети
     public List<MyCurrency> MyCurrencies { get; set; } = new List<MyCurrency>();
+    public List<ClientCurrency> ClientCurrencies { get; set; } = new List<ClientCurrency>();
 
     public PaymentMethod(string name)
     {
@@ -64,10 +61,27 @@ public class ClientCurrency
     public List<Network> Networks { get; set; } = new List<Network>(); // Сети в которых работают криптовалюты
 }
 
-public class MyCurrency : ClientCurrency
+public class MyCurrency
 {
     // Валюта, которую мы отдаём
     public decimal Fund { get; set; } // Наш фонд валюты. Сколько валюты мы имеем.
+
+    [Key]
+    public int Id { get; set; }
+
+    [Required]
+    [MaxLength(150)]
+    public string Name { get; set; } // Название валюты
+
+    [Required]
+    [MaxLength(10)]
+    public string ShortName { get; set; } // Короткое название валюты
+
+    [Required]
+    [MaxLength(20)]
+    public string ImagePath { get; set; } // Путь к изображению
+
+    public List<Network> Networks { get; set; } = new List<Network>(); // Сети в которых работают криптовалюты
 }
 
 public class MyAddresses
@@ -174,6 +188,7 @@ public class Role
         Users = new List<User>();
     }
 }
+
 public class ApplicationContext : DbContext
 {
     public DbSet<Network> Network { get; set; }
@@ -193,7 +208,6 @@ public class ApplicationContext : DbContext
      
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<ClientCurrency>().ToTable("ClientCurrency");
-        modelBuilder.Entity<MyCurrency>().ToTable("MyCurrency");
+        
     }
 }
