@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using src.Models;
 using src.Interfaces;
+using src.Exceptions;
 
 
 
@@ -24,11 +25,10 @@ public class NetworkController : ControllerBase
     {   
         if (network == null)
         {
-            return BadRequest();
+            throw new WrongDataException("Неверные данные");
         }
 
         _repository.Create(network);
-
         return new StatusCodeResult(StatusCodes.Status201Created);
     }
     
@@ -40,7 +40,6 @@ public class NetworkController : ControllerBase
                                                         w => 
                                                         new NetworkDto(id: w.Id, name: w.Name))
                                                       .ToList();
-
         return new JsonResult(networks, serializerOptions);
     }
 
@@ -48,6 +47,11 @@ public class NetworkController : ControllerBase
     public IActionResult GetById(int id)
     {
         Network network = _repository.GetById(id);
+
+        if (network == null)
+        {
+            throw new ObjectNotFoundException("Объект Network не найден");
+        }
 
         return new JsonResult(
             new NetworkDto(id: network.Id, name: network.Name),
@@ -61,11 +65,11 @@ public class NetworkController : ControllerBase
     {   
         if (network == null || network.Id == 0)
         {
-            return BadRequest("Неверный запрос");
+            throw new WrongDataException("Неверные данные");
         }
         else if (_repository.GetById(network.Id) == null)
         {
-            return NotFound("Такого объекта не существует");
+            throw new ObjectNotFoundException("Объект Network не найден");
         }
         else
         {
@@ -79,11 +83,11 @@ public class NetworkController : ControllerBase
     {
         if (id == 0)
         {
-            return BadRequest("Нужен id объекта");
+            throw new WrongDataException("id объекта не может быть равен нулю");
         }
         else if (_repository.GetById(id) == null)
         {
-            return NotFound("Такого объекта не существует");
+            throw new ObjectNotFoundException("Объект Network не найден");
         }
         else
         {
