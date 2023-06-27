@@ -23,7 +23,10 @@ namespace src
 
             services.AddDbContext<ApplicationContext>(options =>
                 options.UseNpgsql(connectionString));
+
             services.AddTransient<IRepository<Network>, EFRepository<Network>>();
+            services.AddTransient<IRepository<PaymentMethod>, EFRepository<PaymentMethod>>();
+
             services.AddControllers();
         }
 
