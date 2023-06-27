@@ -28,9 +28,11 @@ public class NetworkController : ControllerBase
         {
             throw new BadRequestException("Неверные данные");
         }
-
-        _repository.Create(network);
-        return new StatusCodeResult(StatusCodes.Status201Created);
+        else
+        {
+            _repository.Create(network);
+            return new JsonResult(new { message = "Объект успешно создан" });
+        }
     }
     
     [HttpGet("get")]
@@ -76,7 +78,8 @@ public class NetworkController : ControllerBase
         else
         {
             _repository.Update(network);
-            return StatusCode(StatusCodes.Status204NoContent);
+
+            return new JsonResult(new { message = "Объект успешно обновлён" });
         }   
     }
 
@@ -94,7 +97,8 @@ public class NetworkController : ControllerBase
         else
         {
             _repository.Remove(_repository.GetById(id));
-            return StatusCode(StatusCodes.Status204NoContent);
+            
+            return new JsonResult(new { message = "Объект успешно удалён" });
         }
     }
 }
