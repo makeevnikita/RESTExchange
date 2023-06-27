@@ -23,8 +23,6 @@ public class ExceptionHandlerMiddleware
         }
         catch (Exception exception)
         {   
-            int statusCode = StatusCodes.Status500InternalServerError;
-
             switch (exception)
             {
                 case ObjectNotFoundException:
@@ -33,12 +31,15 @@ public class ExceptionHandlerMiddleware
                 case BadRequestException:
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     break;
+                default:
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    break;
             }
 
             context.Response.ContentType = "application/json";
             string result = JsonSerializer.Serialize(
                 new { message = exception.Message,
-                      status = statusCode 
+                      status = context.Response.StatusCode
                     }
                 );
             await context.Response.WriteAsync(result);
