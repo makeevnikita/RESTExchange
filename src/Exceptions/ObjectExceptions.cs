@@ -10,9 +10,9 @@ public class ObjectNotFoundException : Exception
     }
 }
 
-public class WrongDataException : Exception
+public class BadRequestException : Exception
 {
-    public WrongDataException(string message) : base(message)
+    public BadRequestException(string message) : base(message)
     {
         
     }
