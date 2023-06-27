@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using src.Models;
 using src.Interfaces;
 using src.Repositories;
+using src.Middlewares;
+
 
 
 namespace src
@@ -26,8 +28,8 @@ namespace src
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            app.UseDeveloperExceptionPage();
+        {   
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
 
             app.UseRouting();
             

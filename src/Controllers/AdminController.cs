@@ -12,12 +12,13 @@ namespace src.Controllers;
 [Route("network")]
 public class NetworkController : ControllerBase
 {
-    private readonly JsonSerializerOptions serializerOptions = new JsonSerializerOptions { WriteIndented = true };
+    private readonly JsonSerializerOptions serializerOptions;
     private readonly IRepository<Network> _repository;
     
     public NetworkController(IRepository<Network> repository)
     {
         _repository = repository;
+        serializerOptions = new JsonSerializerOptions { WriteIndented = true };
     }
 
     [HttpPost("create")]
@@ -25,7 +26,7 @@ public class NetworkController : ControllerBase
     {   
         if (network == null)
         {
-            throw new WrongDataException("Неверные данные");
+            throw new BadRequestException("Неверные данные");
         }
 
         _repository.Create(network);
@@ -65,7 +66,7 @@ public class NetworkController : ControllerBase
     {   
         if (network == null || network.Id == 0)
         {
-            throw new WrongDataException("Неверные данные");
+            throw new BadRequestException("Неверные данные");
         }
         else if (_repository.GetById(network.Id) == null)
         {
@@ -83,7 +84,7 @@ public class NetworkController : ControllerBase
     {
         if (id == 0)
         {
-            throw new WrongDataException("id объекта не может быть равен нулю");
+            throw new BadRequestException("id объекта не может быть равен нулю");
         }
         else if (_repository.GetById(id) == null)
         {
