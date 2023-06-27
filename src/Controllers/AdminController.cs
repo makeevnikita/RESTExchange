@@ -22,7 +22,7 @@ public class NetworkController : ControllerBase
     }
 
     [HttpPost("create")]
-    public IActionResult CreateNetwork(Network network)
+    public IActionResult Create([FromBody] Network network)
     {   
         if (network == null)
         {
@@ -33,19 +33,20 @@ public class NetworkController : ControllerBase
         return new StatusCodeResult(StatusCodes.Status201Created);
     }
     
-    [HttpGet("getall")]
-    public IActionResult GetAll()
+    [HttpGet("get")]
+    public IActionResult Get()
     {   
         IEnumerable<NetworkDto> networks = _repository.GetAll()
                                                       .Select(
                                                         w => 
                                                         new NetworkDto(id: w.Id, name: w.Name))
                                                       .ToList();
+
         return new JsonResult(networks, serializerOptions);
     }
 
-    [HttpGet("getById")]
-    public IActionResult GetById(int id)
+    [HttpGet("get/{id}")]
+    public IActionResult Get([FromRoute] int id)
     {
         Network network = _repository.GetById(id);
 
@@ -62,7 +63,7 @@ public class NetworkController : ControllerBase
     }
 
     [HttpPut("update")]
-    public IActionResult Update(Network network)
+    public IActionResult Update([FromBody] Network network)
     {   
         if (network == null || network.Id == 0)
         {
@@ -79,8 +80,8 @@ public class NetworkController : ControllerBase
         }   
     }
 
-    [HttpDelete]
-    public IActionResult Remove(int id)
+    [HttpDelete("remove/{id}")]
+    public IActionResult Remove([FromRoute] int id)
     {
         if (id == 0)
         {
