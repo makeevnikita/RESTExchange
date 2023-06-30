@@ -24,7 +24,7 @@ public class NetworkController : ControllerBase
     [HttpPost("create")]
     public IActionResult Create([FromBody] Network network)
     {   
-        if (network == null)
+        if (network.Name == "")
         {
             throw new BadRequestException("Неверные данные");
         }
@@ -36,7 +36,7 @@ public class NetworkController : ControllerBase
     }
     
     [HttpGet("get")]
-    public IActionResult Get()
+    public IActionResult GetAll()
     {   
         IEnumerable<NetworkDto> networks = _repository.GetAll()
                                                       .Select(
@@ -48,10 +48,11 @@ public class NetworkController : ControllerBase
     }
 
     [HttpGet("get/{id}")]
-    public IActionResult Get([FromRoute] int id)
+    public IActionResult GetById([FromRoute] int id)
     {
         Network network = _repository.GetById(id);
 
+        
         if (network == null)
         {
             throw new ObjectNotFoundException("Объект Network не найден");
@@ -67,7 +68,7 @@ public class NetworkController : ControllerBase
     [HttpPut("update")]
     public IActionResult Update([FromBody] Network network)
     {   
-        if (network == null || network.Id == 0)
+        if (network.Name == "" || network.Id == 0)
         {
             throw new BadRequestException("Неверные данные");
         }
