@@ -10,7 +10,7 @@ using src.Exceptions;
 
 
 
-namespace Tests;
+namespace Tests.Controllers;
 
 public class NetworkControllerTest
 {
@@ -56,7 +56,7 @@ public class NetworkControllerTest
         var mock = new Mock<IRepository<Network>>();
         
         mock.Setup(repo => repo.GetById(It.IsAny<int>()))
-                               .Returns(GetById(id));  
+                               .Returns(GetById(It.IsAny<int>()));  
 
         var controller = new NetworkController(mock.Object);
         
@@ -68,9 +68,10 @@ public class NetworkControllerTest
     public void CreateThrowsBadRequestExceptionTest()
     {   
         // Arrange 
-        Network network = new Network() { Id = 5, Name = "" };
+        Network network = new Network();
         var mock = new Mock<IRepository<Network>>();
         var controller = new NetworkController(mock.Object);
+        controller.ModelState.AddModelError("Name", "Required");
         
         // Act & Assert
         Assert.ThrowsAny<BadRequestException>(() => controller.Create(network));
@@ -80,10 +81,11 @@ public class NetworkControllerTest
     public void UpdateThrowsBadRequestExceptionTest()
     {   
         // Arrange 
-        Network network = new Network() { Id = 0, Name = "" };
+        Network network = new Network();
         var mock = new Mock<IRepository<Network>>();
         var controller = new NetworkController(mock.Object);
-        
+        controller.ModelState.AddModelError("Name", "Required");
+
         // Act & Assert
         Assert.ThrowsAny<BadRequestException>(() => controller.Update(network));
     }

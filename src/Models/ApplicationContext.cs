@@ -26,17 +26,11 @@ public class PaymentMethod
     [Key]
     public int Id { get; set; }
 
-    [Required]
     [BindRequired]
     public string Name { get; set; }
 
     public List<MyCurrency> MyCurrencies { get; set; } = new List<MyCurrency>();
     public List<ClientCurrency> ClientCurrencies { get; set; } = new List<ClientCurrency>();
-
-    public PaymentMethod(string name)
-    {
-        Name = name;
-    }
 }
 
 public class ClientCurrency
@@ -135,6 +129,16 @@ public class Order
     [Required]
     public Decimal ReceiveSum { get; set; } // Сумма, которую получает клиент
 
+    [MaxLength(100)]
+    public string ClientName { get; set; } // Имя клиента
+
+    [MaxLength(256)]
+    [Required]
+    public string ClientAddress { get; set; } // Адрес кошелька получателя
+
+    [Required]
+    public MyAddresses MyAddress { get; set; } // Адрес нашего кошелька
+
     [Required]
     public MyCurrency MyCurrency { get; set; } // Валюта, которую мы отдаём
 
@@ -146,16 +150,6 @@ public class Order
 
     [Required]
     public Network ReceiveNetwork { get; set; } // Сеть криптовалюты, которую получает клиент
-
-    [MaxLength(100)]
-    public string ClientName { get; set; } // Имя клиента
-
-    [MaxLength(256)]
-    [Required]
-    public string ClientAddress { get; set; } // Адрес кошелька получателя
-
-    [Required]
-    public MyAddresses MyAddress { get; set; } // Адрес нашего кошелька
 }
 
 public class User

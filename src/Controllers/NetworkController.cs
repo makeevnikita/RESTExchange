@@ -24,7 +24,7 @@ public class NetworkController : ControllerBase
     [HttpPost("create")]
     public IActionResult Create([FromBody] Network network)
     {   
-        if (network.Name == "")
+        if (!ModelState.IsValid)
         {
             throw new BadRequestException("Неверные данные");
         }
@@ -68,7 +68,7 @@ public class NetworkController : ControllerBase
     [HttpPut("update")]
     public IActionResult Update([FromBody] Network network)
     {   
-        if (network.Name == "" || network.Id == 0)
+        if (!ModelState.IsValid)
         {
             throw new BadRequestException("Неверные данные");
         }
@@ -87,9 +87,9 @@ public class NetworkController : ControllerBase
     [HttpDelete("remove/{id}")]
     public IActionResult Remove([FromRoute] int id)
     {
-        if (id == 0)
+        if (id <= 0)
         {
-            throw new BadRequestException("id объекта не может быть равен нулю");
+            throw new BadRequestException("Id не может быть отрицатлеьным или равным нулю");
         }
         else if (_repository.GetById(id) == null)
         {
@@ -114,4 +114,3 @@ public class NetworkDto
         Name = name;
     }
 }
-
