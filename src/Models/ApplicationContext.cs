@@ -30,6 +30,7 @@ public class PaymentMethod
     public string Name { get; set; }
 
     public List<MyCurrency> MyCurrencies { get; set; } = new List<MyCurrency>();
+
     public List<ClientCurrency> ClientCurrencies { get; set; } = new List<ClientCurrency>();
 }
 
@@ -53,6 +54,9 @@ public class ClientCurrency
     public string ImagePath { get; set; } // Путь к изображению
 
     public List<Network> Networks { get; set; } = new List<Network>(); // Сети в которых работают криптовалюты
+
+    [Required]
+    public PaymentMethod PaymentMethod { get; set; }
 }
 
 public class MyCurrency
@@ -76,6 +80,9 @@ public class MyCurrency
     public string ImagePath { get; set; } // Путь к изображению
 
     public List<Network> Networks { get; set; } = new List<Network>(); // Сети в которых работают криптовалюты
+
+    [Required]
+    public PaymentMethod PaymentMethod { get; set; }
 }
 
 public class MyAddresses
