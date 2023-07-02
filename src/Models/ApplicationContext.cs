@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
+
+
 namespace src.Models;
 
 public class Network
@@ -53,9 +55,10 @@ public class ClientCurrency
     [MaxLength(20)]
     public string ImagePath { get; set; } // Путь к изображению
 
+    public int PaymentMethodId { get; set; }
+
     public List<Network> Networks { get; set; } = new List<Network>(); // Сети в которых работают криптовалюты
 
-    [Required]
     public PaymentMethod PaymentMethod { get; set; }
 }
 
