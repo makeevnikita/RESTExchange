@@ -4,6 +4,7 @@ using src.Interfaces;
 using src.Models;
 
 
+
 namespace src.Repositories;
 
 public class EFRepository<T> : IRepository<T> where T : class
@@ -23,9 +24,21 @@ public class EFRepository<T> : IRepository<T> where T : class
         _context.SaveChanges();
     }
 
-    public IEnumerable<T> Get(Func<T, bool> predicate)
-    {
-        return _dbSet.AsNoTracking().Where(predicate).ToList();
+    public IEnumerable<T> Get(Func<T, bool> predicate = null, Expression<Func<T, object>>[] includeProperties = null)
+    {   
+        IQueryable<T> query = _dbSet.AsNoTracking();
+
+        if (includeProperties != null && includeProperties.Count() != 0)
+        {
+            query = includeProperties.Aggregate(query, (current, property) => current.Include(property));
+        }
+
+        if (predicate != null)
+        {
+            query = query.Where(predicate).AsQueryable();
+        }
+
+        return query.ToList();
     }
 
     public IEnumerable<T> GetAll()
@@ -50,11 +63,5 @@ public class EFRepository<T> : IRepository<T> where T : class
     {
         _dbSet.Update(item);
         _context.SaveChanges();
-    }
-
-    public IEnumerable<T> GetInclude(params Expression<Func<T, object>>[] includeProperties)
-    {   
-        IQueryable<T> query = _dbSet.AsNoTracking();
-        return includeProperties.Aggregate(query, (current, property) => current.Include(property)).ToList();
     }
 }

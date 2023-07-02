@@ -10,13 +10,11 @@ public interface IRepository<T> where T : class
     
     IEnumerable<T> GetAll();
     
-    IEnumerable<T> Get(Func<T, bool> predicate);
+    IEnumerable<T> Get(Func<T, bool> predicate = null, Expression<Func<T, object>>[] includeProperties = null);
     
     void Create(T item);
     
     void Remove(T item);
     
     void Update(T item);
-
-    IEnumerable<T> GetInclude(params Expression<Func<T, object>>[] includeProperties);
 }
