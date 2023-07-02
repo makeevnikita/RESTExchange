@@ -3,6 +3,7 @@ using System.Text.Json;
 using src.Models;
 using src.Interfaces;
 using src.Exceptions;
+using src.DataTransferObjects;
 
 
 
@@ -101,17 +102,5 @@ public class PaymentMethodController : ControllerBase
             
             return new JsonResult(new { message = "Объект успешно удалён" });
         }
-    }
-}
-
-public class PaymentMethodDto
-{
-    public int Id { get; }
-    public string Name { get; }
-
-    public PaymentMethodDto(int id, string name)
-    {
-        Id = id;
-        Name = name;
     }
 }

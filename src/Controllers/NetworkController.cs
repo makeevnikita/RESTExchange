@@ -3,6 +3,7 @@ using System.Text.Json;
 using src.Models;
 using src.Interfaces;
 using src.Exceptions;
+using src.DataTransferObjects;
 
 
 
@@ -101,16 +102,5 @@ public class NetworkController : ControllerBase
             
             return new JsonResult(new { message = "Объект успешно удалён" });
         }
-    }
-}
-public class NetworkDto
-{   
-    public int Id { get; }
-    public string Name { get; }
-
-    public NetworkDto(int id, string name)
-    {
-        Id = id;
-        Name = name;
     }
 }
