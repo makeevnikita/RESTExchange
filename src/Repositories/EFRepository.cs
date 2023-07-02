@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using src.Interfaces;
 using src.Models;
 
@@ -36,11 +37,6 @@ public class EFRepository<T> : IRepository<T> where T : class
     {
         T item = _dbSet.Find(id);
 
-        if (item != null)
-        {
-            _context.Entry(item).State = EntityState.Detached;
-        }
-
         return item;
     }
 
@@ -54,5 +50,11 @@ public class EFRepository<T> : IRepository<T> where T : class
     {
         _dbSet.Update(item);
         _context.SaveChanges();
+    }
+
+    public IEnumerable<T> GetInclude(params Expression<Func<T, object>>[] includeProperties)
+    {   
+        IQueryable<T> query = _dbSet.AsNoTracking();
+        return includeProperties.Aggregate(query, (current, property) => current.Include(property)).ToList();
     }
 }
