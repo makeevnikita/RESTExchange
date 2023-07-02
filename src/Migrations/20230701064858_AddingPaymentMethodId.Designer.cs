@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using src.Models;
@@ -11,9 +12,10 @@ using src.Models;
 namespace rest_exchange.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230701064858_AddingPaymentMethodId")]
+    partial class AddingPaymentMethodId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +36,7 @@ namespace rest_exchange.Migrations
 
                     b.HasIndex("NetworksId");
 
-                    b.ToTable("ClientCurrencyNetwork", (string)null);
+                    b.ToTable("ClientCurrencyNetwork");
                 });
 
             modelBuilder.Entity("MyCurrencyNetwork", b =>
@@ -49,7 +51,7 @@ namespace rest_exchange.Migrations
 
                     b.HasIndex("NetworksId");
 
-                    b.ToTable("MyCurrencyNetwork", (string)null);
+                    b.ToTable("MyCurrencyNetwork");
                 });
 
             modelBuilder.Entity("src.Models.ClientCurrency", b =>
@@ -82,7 +84,7 @@ namespace rest_exchange.Migrations
 
                     b.HasIndex("PaymentMethodId");
 
-                    b.ToTable("ClientCurreny", (string)null);
+                    b.ToTable("ClientCurreny");
                 });
 
             modelBuilder.Entity("src.Models.MyAddresses", b =>
@@ -109,7 +111,7 @@ namespace rest_exchange.Migrations
 
                     b.HasIndex("NetworkId");
 
-                    b.ToTable("MyAddress", (string)null);
+                    b.ToTable("MyAddress");
                 });
 
             modelBuilder.Entity("src.Models.MyCurrency", b =>
@@ -145,7 +147,7 @@ namespace rest_exchange.Migrations
 
                     b.HasIndex("PaymentMethodId");
 
-                    b.ToTable("MyCurrency", (string)null);
+                    b.ToTable("MyCurrency");
                 });
 
             modelBuilder.Entity("src.Models.Network", b =>
@@ -162,7 +164,7 @@ namespace rest_exchange.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Network", (string)null);
+                    b.ToTable("Network");
                 });
 
             modelBuilder.Entity("src.Models.Order", b =>
@@ -226,7 +228,7 @@ namespace rest_exchange.Migrations
 
                     b.HasIndex("ReceiveNetworkId");
 
-                    b.ToTable("Order", (string)null);
+                    b.ToTable("Order");
                 });
 
             modelBuilder.Entity("src.Models.OrderStatus", b =>
@@ -244,7 +246,7 @@ namespace rest_exchange.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OrderStatus", (string)null);
+                    b.ToTable("OrderStatus");
                 });
 
             modelBuilder.Entity("src.Models.PaymentMethod", b =>
@@ -261,7 +263,7 @@ namespace rest_exchange.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PaymentMethod", (string)null);
+                    b.ToTable("PaymentMethod");
                 });
 
             modelBuilder.Entity("src.Models.Role", b =>
@@ -278,7 +280,7 @@ namespace rest_exchange.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Role", (string)null);
+                    b.ToTable("Role");
                 });
 
             modelBuilder.Entity("src.Models.User", b =>
@@ -304,7 +306,7 @@ namespace rest_exchange.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("User", (string)null);
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("ClientCurrencyNetwork", b =>
