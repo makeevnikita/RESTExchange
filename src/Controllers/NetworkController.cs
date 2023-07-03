@@ -4,6 +4,7 @@ using src.Models;
 using src.Interfaces;
 using src.Exceptions;
 using src.DataTransferObjects;
+using System.Linq.Expressions;
 
 
 
@@ -14,36 +15,70 @@ namespace src.Controllers;
 public class NetworkController : ControllerBase
 {
     private readonly JsonSerializerOptions serializerOptions;
-    private readonly IRepository<Network> _repository;
+    private readonly IRepository<Network> _networkRepository;
+    private readonly IRepository<ClientCurrency> _clientCurrencyRepository;
     
-    public NetworkController(IRepository<Network> repository)
+    public NetworkController(
+        IRepository<Network> networkRepository, IRepository<ClientCurrency> clientCurrencyRepository
+    )
     {
-        _repository = repository;
+        _networkRepository = networkRepository;
+        _clientCurrencyRepository = clientCurrencyRepository;
         serializerOptions = new JsonSerializerOptions { WriteIndented = true };
     }
 
+    private IEnumerable<Network> GetWithInclude(Func<Network, bool> predicate = null)
+    {
+        var expressions = new Expression<Func<Network, object>>[1]
+        {
+            w => w.ClientCurrencies
+        };
+
+        IEnumerable<Network> networks = _networkRepository.Get(predicate: predicate, includeProperties: expressions);
+        
+        return networks;
+    }
+
     [HttpPost("create")]
-    public IActionResult Create([FromBody] Network network)
+    public IActionResult Create([FromBody] NetworkDtoRequest networkDto)
     {   
         if (!ModelState.IsValid)
         {
             throw new BadRequestException("Неверные данные");
         }
-        else
+
+        Network newNetwork = new Network { Name = networkDto.Name };
+
+        foreach (int id in networkDto.Currencies)
         {
-            _repository.Create(network);
-            return new JsonResult(new { message = "Объект успешно создан" });
+            ClientCurrency currency = _clientCurrencyRepository.GetById(id);
+            if (currency == null)
+            {
+                throw new ObjectNotFoundException($"Объект ClientCurrency id = {currency.Id} не найден");  
+            }
+            newNetwork.ClientCurrencies.Add(currency);
         }
+        
+        _networkRepository.Create(newNetwork);
+
+        return new JsonResult(new { message = "Объект успешно создан" });
     }
     
     [HttpGet("get")]
     public IActionResult GetAll()
     {   
-        IEnumerable<NetworkDto> networks = _repository.GetAll()
-                                                      .Select(
-                                                        w => 
-                                                        new NetworkDto(id: w.Id, name: w.Name))
-                                                      .ToList();
+        IEnumerable<NetworkDto> networks = GetWithInclude()
+            .Select(network => new NetworkDto { Id = network.Id, Name = network.Name,
+                                                ClientCurrencies = network.ClientCurrencies.Select(
+                                                    currency => new ClientCurrencyDto {   
+                                                                Id = currency.Id,
+                                                                Name = currency.Name,
+                                                                ShortName = currency.ShortName,
+                                                                ImagePath = currency.ImagePath,
+                                                                PaymentMethodId = currency.PaymentMethodId
+                                                            }
+                                                        )
+                                            });
 
         return new JsonResult(networks, serializerOptions);
     }
@@ -51,38 +86,61 @@ public class NetworkController : ControllerBase
     [HttpGet("get/{id}")]
     public IActionResult GetById([FromRoute] int id)
     {
-        Network network = _repository.GetById(id);
 
-        
-        if (network == null)
+        NetworkDto? networkDto = GetWithInclude().Select(network => new NetworkDto { Id = network.Id, Name = network.Name,
+                                                ClientCurrencies = network.ClientCurrencies.Select(
+                                                    currency => new ClientCurrencyDto {   
+                                                                Id = currency.Id,
+                                                                Name = currency.Name,
+                                                                ShortName = currency.ShortName,
+                                                                ImagePath = currency.ImagePath,
+                                                                PaymentMethodId = currency.PaymentMethodId
+                                                            }
+                                                        )
+                                            }).SingleOrDefault(w => w.Id == id);
+
+        if (networkDto == null)
         {
             throw new ObjectNotFoundException("Объект Network не найден");
         }
 
-        return new JsonResult(
-            new NetworkDto(id: network.Id, name: network.Name),
-            serializerOptions
-        );
+        return new JsonResult(networkDto, serializerOptions);
 
     }
 
     [HttpPut("update")]
-    public IActionResult Update([FromBody] Network network)
+    public IActionResult Update([FromBody] NetworkDtoRequest networkRequest)
     {   
         if (!ModelState.IsValid)
         {
             throw new BadRequestException("Неверные данные");
         }
-        else if (_repository.GetById(network.Id) == null)
-        {
-            throw new ObjectNotFoundException("Объект Network не найден");
-        }
-        else
-        {
-            _repository.Update(network);
 
-            return new JsonResult(new { message = "Объект успешно обновлён" });
-        }   
+        Network? updatedNetwork = GetWithInclude().SingleOrDefault(w => w.Id == networkRequest.Id);
+
+        if (updatedNetwork == null)
+        {
+            throw new ObjectNotFoundException($"Объект Network id = {networkRequest.Id} не найден");    
+        }
+
+        updatedNetwork.Name = networkRequest.Name;
+        updatedNetwork.ClientCurrencies.Clear();
+        
+        _networkRepository.Update(updatedNetwork);
+
+        foreach (int id in networkRequest.Currencies)
+        {   
+            ClientCurrency currency = _clientCurrencyRepository.GetById(id);
+            if (currency == null)
+            {
+                throw new ObjectNotFoundException($"Объект ClientCurrency id = {currency.Id} не найден");  
+            }
+            updatedNetwork.ClientCurrencies.Add(currency);
+        }
+
+        _networkRepository.Update(updatedNetwork);
+
+        return new JsonResult(new { message = "Объект успешно обновлён" });
     }
 
     [HttpDelete("remove/{id}")]
@@ -92,15 +150,14 @@ public class NetworkController : ControllerBase
         {
             throw new BadRequestException("Id не может быть отрицатлеьным или равным нулю");
         }
-        else if (_repository.GetById(id) == null)
+
+        if (_networkRepository.GetById(id) == null)
         {
-            throw new ObjectNotFoundException("Объект Network не найден");
+            throw new ObjectNotFoundException($"Объект Network id = {id} не найден");
         }
-        else
-        {
-            _repository.Remove(_repository.GetById(id));
+
+        _networkRepository.Remove(_networkRepository.GetById(id));
             
-            return new JsonResult(new { message = "Объект успешно удалён" });
-        }
+        return new JsonResult(new { message = "Объект успешно удалён" });
     }
 }

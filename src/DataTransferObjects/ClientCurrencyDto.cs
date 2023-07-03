@@ -15,22 +15,17 @@ public class ClientCurrencyDto
 
     public string ImagePath { get; set; }
 
-    public PaymentMethodDto PaymentMethod { get; set; }
+    public int PaymentMethodId { get; set; }
 
-    public IEnumerable<NetworkDto> Networks { get; set; }
-
-    public ClientCurrencyDto(
-        int id, string name, string shortName, string imagePath,
-        PaymentMethodDto paymentMethod, IEnumerable<NetworkDto> networks
-        )
+/*     public ClientCurrencyDto(
+        int id, string name, string shortName, string imagePath, PaymentMethodDto paymentMethod)
     {
         Id = id;
         Name = name;
         ShortName = shortName;
         ImagePath = imagePath;
         PaymentMethod = paymentMethod;
-        Networks = networks;
-    }
+    } */
 }
 
 public class ClientCurrencyDtoRequest

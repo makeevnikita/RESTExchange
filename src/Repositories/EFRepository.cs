@@ -26,7 +26,7 @@ public class EFRepository<T> : IRepository<T> where T : class
 
     public IEnumerable<T> Get(Func<T, bool> predicate = null, Expression<Func<T, object>>[] includeProperties = null)
     {   
-        IQueryable<T> query = _dbSet.AsNoTracking();
+        IQueryable<T> query = _dbSet.AsQueryable();
 
         if (includeProperties != null && includeProperties.Count() != 0)
         {
@@ -56,6 +56,12 @@ public class EFRepository<T> : IRepository<T> where T : class
     public void Remove(T item)
     {
         _dbSet.Remove(item);
+        _context.SaveChanges();
+    }
+
+    public void RemoveRange(IEnumerable<T> items)
+    {
+        _dbSet.RemoveRange(items);
         _context.SaveChanges();
     }
 
