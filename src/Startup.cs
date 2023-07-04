@@ -26,6 +26,7 @@ namespace src
 
             services.AddTransient<IRepository<Network>, EFRepository<Network>>();
             services.AddTransient<IRepository<PaymentMethod>, EFRepository<PaymentMethod>>();
+            services.AddTransient<IRepository<ClientCurrency>, EFRepository<ClientCurrency>>();
 
             services.AddControllers();
         }
