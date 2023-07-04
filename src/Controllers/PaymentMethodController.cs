@@ -40,10 +40,11 @@ public class PaymentMethodController : ControllerBase
     public IActionResult Get()
     {   
         IEnumerable<PaymentMethodDto> networks = _repository.GetAll()
-                                                      .Select(
-                                                        w => 
-                                                        new PaymentMethodDto(id: w.Id, name: w.Name))
-                                                      .ToList();
+            .Select(method => new PaymentMethodDto
+                {
+                    Id = method.Id,
+                    Name = method.Name
+                }).ToList();
 
         return new JsonResult(networks, serializerOptions);
     }
@@ -57,13 +58,16 @@ public class PaymentMethodController : ControllerBase
         {
             throw new ObjectNotFoundException("Объект PaymentMethod не найден");
         }
-        else
-        {
-            return new JsonResult(
-            new PaymentMethodDto(id: method.Id, name: method.Name),
-            serializerOptions
-        );
-        }
+
+        return new JsonResult
+            (
+                new PaymentMethodDto
+                    {
+                        Id = method.Id,
+                        Name = method.Name
+                    },
+                serializerOptions
+            );
     }
 
     [HttpPut("update")]
