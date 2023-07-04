@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 
 
@@ -15,17 +14,7 @@ public class ClientCurrencyDto
 
     public string ImagePath { get; set; }
 
-    public int PaymentMethodId { get; set; }
-
-/*     public ClientCurrencyDto(
-        int id, string name, string shortName, string imagePath, PaymentMethodDto paymentMethod)
-    {
-        Id = id;
-        Name = name;
-        ShortName = shortName;
-        ImagePath = imagePath;
-        PaymentMethod = paymentMethod;
-    } */
+    public PaymentMethodDto PaymentMethod { get; set; }
 }
 
 public class ClientCurrencyDtoRequest
@@ -43,20 +32,4 @@ public class ClientCurrencyDtoRequest
 
     [BindRequired]
     public int PaymentMethodId { get; set; }
-
-    [ValidateNever]  
-    public int[] Networks { get; set; }
-
-    public ClientCurrencyDtoRequest(
-        int? id, string name, string shortName, string imagePath,
-        int paymentMethodId, int[] networks
-        )
-    {
-        Id = id;
-        Name = name;
-        ShortName = shortName;
-        ImagePath = imagePath;
-        PaymentMethodId = paymentMethodId;
-        Networks = networks;
-    }
 }

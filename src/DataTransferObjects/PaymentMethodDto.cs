@@ -2,12 +2,6 @@ namespace src.DataTransferObjects;
 
 public class PaymentMethodDto
 {
-    public int Id { get; }
-    public string Name { get; }
-
-    public PaymentMethodDto(int id, string name)
-    {
-        Id = id;
-        Name = name;
-    }
+    public int Id { get; set; }
+    public string Name { get; set; }
 }
