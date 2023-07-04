@@ -68,17 +68,19 @@ public class NetworkController : ControllerBase
     public IActionResult GetAll()
     {   
         IEnumerable<NetworkDto> networks = GetWithInclude()
-            .Select(network => new NetworkDto { Id = network.Id, Name = network.Name,
-                                                ClientCurrencies = network.ClientCurrencies.Select(
-                                                    currency => new ClientCurrencyDto {   
-                                                                Id = currency.Id,
-                                                                Name = currency.Name,
-                                                                ShortName = currency.ShortName,
-                                                                ImagePath = currency.ImagePath,
-                                                                PaymentMethodId = currency.PaymentMethodId
-                                                            }
-                                                        )
-                                            });
+            .Select(network => new NetworkDto 
+                { 
+                    Id = network.Id, Name = network.Name,
+                    ClientCurrencies = network.ClientCurrencies.Select(
+                    currency => new ClientCurrencyDto
+                                    {   
+                                        Id = currency.Id,
+                                        Name = currency.Name,
+                                        ShortName = currency.ShortName,
+                                        ImagePath = currency.ImagePath
+                                    }
+                                )
+                });
 
         return new JsonResult(networks, serializerOptions);
     }
@@ -87,17 +89,19 @@ public class NetworkController : ControllerBase
     public IActionResult GetById([FromRoute] int id)
     {
 
-        NetworkDto? networkDto = GetWithInclude().Select(network => new NetworkDto { Id = network.Id, Name = network.Name,
-                                                ClientCurrencies = network.ClientCurrencies.Select(
-                                                    currency => new ClientCurrencyDto {   
-                                                                Id = currency.Id,
-                                                                Name = currency.Name,
-                                                                ShortName = currency.ShortName,
-                                                                ImagePath = currency.ImagePath,
-                                                                PaymentMethodId = currency.PaymentMethodId
-                                                            }
-                                                        )
-                                            }).SingleOrDefault(w => w.Id == id);
+        NetworkDto? networkDto = GetWithInclude().Select(network => new NetworkDto 
+                { 
+                    Id = network.Id, Name = network.Name,
+                    ClientCurrencies = network.ClientCurrencies.Select(
+                    currency => new ClientCurrencyDto
+                                    {   
+                                        Id = currency.Id,
+                                        Name = currency.Name,
+                                        ShortName = currency.ShortName,
+                                        ImagePath = currency.ImagePath
+                                    }
+                                )
+                }).SingleOrDefault(w => w.Id == id);
 
         if (networkDto == null)
         {
