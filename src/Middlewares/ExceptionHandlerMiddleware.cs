@@ -38,7 +38,7 @@ public class ExceptionHandlerMiddleware
 
             context.Response.ContentType = "application/json";
             string result = JsonSerializer.Serialize(
-                new { message = exception.Message,
+                new { message = "Internal Server Error",
                       status = context.Response.StatusCode
                     }
                 );
