@@ -1,6 +1,6 @@
 # REST API 
 
-Доступные методы
+Способы оплаты - Доступные методы
 |Метод|Параметры запроса|Описание|Результат|
 |---|---|---|---|
 |**GET** paymentmethod/get_all|Отсутствуют|Возвращает все способы оплаты|[<br>&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;"Id":&nbsp;1,<br>&nbsp;&nbsp;&nbsp;&nbsp;"Name":&nbsp;"Банковкская карта"<br>&nbsp;&nbsp;},<br>&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;"Id":&nbsp;2,<br>&nbsp;&nbsp;&nbsp;&nbsp;"Name":&nbsp;"Онлайн-кошелёк"<br>&nbsp;&nbsp;}<br>]|
