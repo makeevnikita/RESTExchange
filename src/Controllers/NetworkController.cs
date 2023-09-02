@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using System.Text.Encodings.Web;
 using src.Models;
 using src.Interfaces;
 using src.Exceptions;
@@ -24,7 +25,11 @@ public class NetworkController : ControllerBase
     {
         _networkRepository = networkRepository;
         _clientCurrencyRepository = clientCurrencyRepository;
-        serializerOptions = new JsonSerializerOptions { WriteIndented = true };
+        serializerOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
     }
 
     private IEnumerable<Network> GetWithInclude(Func<Network, bool> predicate = null)

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Encodings.Web;
 using System.Linq.Expressions;
 using src.Models;
 using src.Interfaces;
@@ -28,12 +29,12 @@ public class ClientCurrencyController : ControllerBase
     {
         _clientCurrencyRepository = clientCurrencyRepository;
         _paymentMethod = paymentMethod;
-
         serializerOptions = new JsonSerializerOptions
         { 
             WriteIndented = true,
             ReferenceHandler = ReferenceHandler.IgnoreCycles,
-            IncludeFields = true
+            IncludeFields = true,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
     }
     
@@ -121,6 +122,7 @@ public class ClientCurrencyController : ControllerBase
                                         }
                 });
 
+        Console.WriteLine(new JsonResult(result, serializerOptions));
         return new JsonResult(result, serializerOptions);
     } 
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using System.Text.Encodings.Web;
 using src.Models;
 using src.Interfaces;
 using src.Exceptions;
@@ -19,7 +20,11 @@ public class PaymentMethodController : ControllerBase
     public PaymentMethodController(IRepository<PaymentMethod> repository)
     {
         _repository = repository;
-        serializerOptions = new JsonSerializerOptions { WriteIndented = true };
+        serializerOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
     }
 
     [HttpPost("create")]
