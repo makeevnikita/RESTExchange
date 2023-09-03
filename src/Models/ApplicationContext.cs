@@ -55,11 +55,9 @@ public class ClientCurrency
     [MaxLength(20)]
     public string ImagePath { get; set; } // Путь к изображению
 
-    public int PaymentMethodId { get; set; }
-
     public List<Network> Networks { get; set; } = new List<Network>(); // Сети в которых работают криптовалюты
 
-    public PaymentMethod PaymentMethod { get; set; }
+    public PaymentMethod PaymentMethod { get; set; } // Категория платёжной системы
 }
 
 public class MyCurrency

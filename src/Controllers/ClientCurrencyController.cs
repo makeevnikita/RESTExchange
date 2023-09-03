@@ -17,18 +17,19 @@ namespace src.Controllers;
 public class ClientCurrencyController : ControllerBase
 {
     private readonly JsonSerializerOptions serializerOptions;
-
-    private readonly IRepository<ClientCurrency> _clientCurrencyRepository;
-
-    private readonly IRepository<PaymentMethod> _paymentMethod;
+    private readonly IClientCurrencyRepository _clientCurrencyRepository;
+    private readonly IPaymentMethodRepository _paymentMethodRepository;
+    private readonly INetworkRepository _networkRepository;
     
     public ClientCurrencyController(
-        IRepository<ClientCurrency> clientCurrencyRepository,
-        IRepository<PaymentMethod> paymentMethod
-        )
+        IClientCurrencyRepository clientCurrencyRepository,
+        IPaymentMethodRepository paymentMethodRepository,
+        INetworkRepository networkRepository
+    )
     {
         _clientCurrencyRepository = clientCurrencyRepository;
-        _paymentMethod = paymentMethod;
+        _paymentMethodRepository = paymentMethodRepository;
+        _networkRepository = networkRepository;
         serializerOptions = new JsonSerializerOptions
         { 
             WriteIndented = true,
@@ -37,130 +38,179 @@ public class ClientCurrencyController : ControllerBase
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
     }
-    
-    private IEnumerable<ClientCurrency> GetWithInclude(Func<ClientCurrency, bool> predicate = null)
-    {
-        var expressions = new Expression<Func<ClientCurrency, object>>[2]
-        {
-            w => w.Networks,
-            w => w.PaymentMethod
-        };
-
-        var result = _clientCurrencyRepository.Get(predicate: predicate, includeProperties: expressions);
-
-        return result;
-    }
 
     [HttpPost("create")]
     public IActionResult Create(
-        [FromBody]ClientCurrencyDtoRequest currencyDto
+        [FromQuery] string name, [FromQuery] string shortName,
+        [FromQuery] string imagePath, [FromQuery] int paymentMethodId,
+        [FromQuery] int[] network
     )
-    {   
-        if (!ModelState.IsValid)
+    {
+        ClientCurrency currency = new ClientCurrency()
         {
-            throw new BadRequestException("Неверные данные");
-        }
-
-        if (_paymentMethod.GetById(currencyDto.PaymentMethodId) == null)
-        {
-            throw new ObjectNotFoundException($"PaymentMethod с id = {currencyDto.PaymentMethodId} не найден");
-        }
-        
-        ClientCurrency newCurrency = new ClientCurrency()
-        {
-            Name = currencyDto.Name,
-            ShortName = currencyDto.ShortName,
-            ImagePath = currencyDto.ImagePath,
-            PaymentMethodId = currencyDto.PaymentMethodId
+            Name = name,
+            ShortName = shortName,
+            ImagePath = imagePath,
         };
 
-        _clientCurrencyRepository.Create(newCurrency);
+        PaymentMethod method = _paymentMethodRepository.GetById(paymentMethodId);
+
+        if (method == null)
+        {
+            throw new ObjectNotFoundException("Object not found");
+        }
+        else
+        {
+            currency.PaymentMethod = method;
+        }
+
+        foreach (int i in network)
+        {
+            Network net = _networkRepository.GetById(i);
+
+            if (net == null)
+            {
+                throw new ObjectNotFoundException("Object not found");
+            }
+            else
+            {
+                currency.Networks.Add(net);
+            }
+        }
+
+        _clientCurrencyRepository.Create(currency);
 
         return new JsonResult(new { message = "Объект успешно создан" });
     }
 
-    [HttpGet("get/{id}")]
-    public IActionResult GetById([FromRoute] int id)
-    {
-        var result = GetWithInclude(w => w.Id == id)
-            .Select(currency => new ClientCurrencyDto
+    [HttpGet("get")]
+    public IActionResult GetById([FromQuery] int id)
+    { 
+        ClientCurrencyDto currency = _clientCurrencyRepository.GetById(id)
+        .Select(currency => new ClientCurrencyDto
                 {
                     Id = currency.Id,
                     Name = currency.Name,
                     ShortName = currency.ShortName,
                     ImagePath = currency.ImagePath,
+                    Networks = currency.Networks.Select(
+                        network => new NetworkDto
+                        {
+                            Id = network.Id,
+                            Name = network.Name
+                        }
+                    ),
                     PaymentMethod = new PaymentMethodDto
-                                        {
-                                            Id = currency.PaymentMethod.Id,
-                                            Name = currency.PaymentMethod.Name
-                                        }
+                        {
+                            Id = currency.PaymentMethod.Id,
+                            Name = currency.PaymentMethod.Name
+                        }
                 }).SingleOrDefault();
 
-        return new JsonResult(result, serializerOptions);
+        return new JsonResult(currency, serializerOptions);
     }
 
-    [HttpGet("get")]
+    [HttpGet("get_all")]
     public IActionResult GetAll()
     {   
-        var expressions = new Expression<Func<ClientCurrency, object>>[2]
-        {
-            w => w.Networks,
-            w => w.PaymentMethod
-        };
-
-        var result = _clientCurrencyRepository.Get(includeProperties: expressions)
-            .Select(currency => new ClientCurrencyDto
+        IEnumerable<ClientCurrencyDto> currencies = _clientCurrencyRepository.GetAll()
+        .Select(currency => new ClientCurrencyDto
                 {
                     Id = currency.Id,
                     Name = currency.Name,
                     ShortName = currency.ShortName,
                     ImagePath = currency.ImagePath,
+                    Networks = currency.Networks.Select(
+                        network => new NetworkDto
+                        {
+                            Id = network.Id,
+                            Name = network.Name
+                        }
+                    ),
                     PaymentMethod = new PaymentMethodDto
-                                        {
-                                            Id = currency.PaymentMethod.Id,
-                                            Name = currency.PaymentMethod.Name
-                                        }
+                        {
+                            Id = currency.PaymentMethod.Id,
+                            Name = currency.PaymentMethod.Name
+                        }
                 });
-
-        Console.WriteLine(new JsonResult(result, serializerOptions));
-        return new JsonResult(result, serializerOptions);
+                
+        return new JsonResult(currencies, serializerOptions);
     } 
 
     [HttpPut("update")]
-    public IActionResult Update([FromBody]ClientCurrencyDtoRequest currencyDto)
+    public IActionResult Update(
+        [FromQuery] int id, [FromQuery] string? name, [FromQuery] string? shortName,
+        [FromQuery] string? imagePath, [FromQuery] int? paymentMethodId,
+        [FromQuery] int[]? network
+        )
     {
-        if (!ModelState.IsValid || currencyDto.Id == 0)
+        ClientCurrency currency = _clientCurrencyRepository.GetById(id).SingleOrDefault();
+        
+        if (currency == null)
         {
-            throw new BadRequestException("Неверные данные");
+            throw new ObjectNotFoundException("Object not found");
         }
 
-        var expressions = new Expression<Func<ClientCurrency, object>>[1]
+        if (!string.IsNullOrEmpty(name))
         {
-            w => w.Networks
-        };
+            currency.Name = name;
+        }
+        if (!string.IsNullOrEmpty(shortName))
+        {
+            currency.ShortName = shortName;
+        }
+        if (!string.IsNullOrEmpty(imagePath))
+        {
+            currency.ImagePath = imagePath;
+        }
+        if (network.Length > 0)
+        {
+            currency.Networks.Clear();
+            _clientCurrencyRepository.Update(currency);
 
-        var currency = GetWithInclude(w => w.Id == currencyDto.Id).SingleOrDefault();
+            foreach (int i in network)
+            {
+                Network net = _networkRepository.GetById(i);
+
+                if (net == null)
+                {
+                    throw new ObjectNotFoundException("Object not found");
+                }
+                else
+                {
+                    currency.Networks.Add(net);
+                }
+            }
+        }
+        if (paymentMethodId.HasValue)
+        {
+            PaymentMethod method = _paymentMethodRepository.GetById(paymentMethodId.Value);
+
+            if (method == null)
+            {
+                throw new ObjectNotFoundException("Object not found");
+            }
+            else
+            {
+                currency.PaymentMethod = method;
+            }
+        }
+
+        _clientCurrencyRepository.Update(currency);
+        return new JsonResult(new { message = "Object was updated successfully" });
+    }
+
+    [HttpDelete("remove")]
+    public IActionResult Remove([FromQuery] int id)
+    {
+        ClientCurrency currency = _clientCurrencyRepository.GetById(id).SingleOrDefault();
 
         if (currency == null)
         {
-            throw new ObjectNotFoundException($"Network с id = {currencyDto.Id} не найден");
+            throw new ObjectNotFoundException("Object not found");
         }
 
-        var paymentMethod = _paymentMethod.Get(predicate: w => w.Id == currencyDto.PaymentMethodId);
-
-        if (paymentMethod == null)
-        {
-            throw new ObjectNotFoundException($"Network с id = {currencyDto.PaymentMethodId} не найден");
-        }
-        
-
-        currency.Name = currencyDto.Name;
-        currency.ShortName = currencyDto.ShortName;
-        currency.ImagePath = currencyDto.ImagePath;
-        currency.PaymentMethodId = currencyDto.PaymentMethodId;
-
-        _clientCurrencyRepository.Update(currency);
-
-        return new JsonResult(new { message = "Объект успешно обновлён" });
+        _clientCurrencyRepository.Remove(currency);
+        return new JsonResult(new { message = "Object was successfully deleted" });
     }
 }

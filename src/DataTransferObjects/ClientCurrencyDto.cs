@@ -14,6 +14,8 @@ public class ClientCurrencyDto
 
     public string ImagePath { get; set; }
 
+    public IEnumerable<NetworkDto> Networks { get; set; }
+
     public PaymentMethodDto PaymentMethod { get; set; }
 }
 

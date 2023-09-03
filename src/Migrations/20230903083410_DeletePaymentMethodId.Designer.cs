@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using src.Models;
@@ -11,9 +12,11 @@ using src.Models;
 namespace rest_exchange.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230903083410_DeletePaymentMethodId")]
+    partial class DeletePaymentMethodId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,6 +38,21 @@ namespace rest_exchange.Migrations
                     b.HasIndex("NetworksId");
 
                     b.ToTable("ClientCurrencyNetwork");
+                });
+
+            modelBuilder.Entity("ClientCurrencyPaymentMethod", b =>
+                {
+                    b.Property<int>("ClientCurrenciesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PaymentMethodsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ClientCurrenciesId", "PaymentMethodsId");
+
+                    b.HasIndex("PaymentMethodsId");
+
+                    b.ToTable("ClientCurrencyPaymentMethod");
                 });
 
             modelBuilder.Entity("MyCurrencyNetwork", b =>
@@ -70,17 +88,12 @@ namespace rest_exchange.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
-                    b.Property<int>("PaymentMethodId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("ShortName")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PaymentMethodId");
 
                     b.ToTable("ClientCurreny");
                 });
@@ -322,6 +335,21 @@ namespace rest_exchange.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ClientCurrencyPaymentMethod", b =>
+                {
+                    b.HasOne("src.Models.ClientCurrency", null)
+                        .WithMany()
+                        .HasForeignKey("ClientCurrenciesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("src.Models.PaymentMethod", null)
+                        .WithMany()
+                        .HasForeignKey("PaymentMethodsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MyCurrencyNetwork", b =>
                 {
                     b.HasOne("src.Models.MyCurrency", null)
@@ -335,17 +363,6 @@ namespace rest_exchange.Migrations
                         .HasForeignKey("NetworksId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("src.Models.ClientCurrency", b =>
-                {
-                    b.HasOne("src.Models.PaymentMethod", "PaymentMethod")
-                        .WithMany("ClientCurrencies")
-                        .HasForeignKey("PaymentMethodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PaymentMethod");
                 });
 
             modelBuilder.Entity("src.Models.MyAddresses", b =>
@@ -434,8 +451,6 @@ namespace rest_exchange.Migrations
 
             modelBuilder.Entity("src.Models.PaymentMethod", b =>
                 {
-                    b.Navigation("ClientCurrencies");
-
                     b.Navigation("MyCurrencies");
                 });
 
