@@ -6,13 +6,13 @@ namespace src.Middlewares;
 
 public class ExceptionHandlerMiddleware
 {
-    private readonly JsonSerializerOptions serializerOptions;
     private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionHandlerMiddleware> _logger;
 
-    public ExceptionHandlerMiddleware(RequestDelegate next)
+    public ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionHandlerMiddleware> logger)
     {
         _next = next;
-        serializerOptions = new JsonSerializerOptions { WriteIndented = true };
+        _logger = logger;
     }
 
     public async Task Invoke(HttpContext context)
@@ -23,6 +23,9 @@ public class ExceptionHandlerMiddleware
         }
         catch (Exception exception)
         {   
+            _logger.LogError($"Message: {exception.Message}\nStackTrace: {exception.StackTrace}");
+
+            string exMessage = exception.Message;
             switch (exception)
             {
                 case ObjectNotFoundException:
@@ -32,13 +35,14 @@ public class ExceptionHandlerMiddleware
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     break;
                 default:
+                    exMessage = "Internal Server Error";
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     break;
             }
 
             context.Response.ContentType = "application/json";
             string result = JsonSerializer.Serialize(
-                new { message = "Internal Server Error",
+                new { message = exMessage,
                       status = context.Response.StatusCode
                     }
                 );
