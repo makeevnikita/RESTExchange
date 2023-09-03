@@ -25,7 +25,7 @@ namespace src
                 options.UseNpgsql(connectionString));
 
             services.AddTransient<IRepository<Network>, EFRepository<Network>>();
-            services.AddTransient<IRepository<PaymentMethod>, EFRepository<PaymentMethod>>();
+            services.AddTransient<IPaymentMethodRepository, EFPaymentMethodRepository>();
             services.AddTransient<IRepository<ClientCurrency>, EFRepository<ClientCurrency>>();
 
             services.AddControllers();

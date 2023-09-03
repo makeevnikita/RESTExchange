@@ -15,9 +15,9 @@ namespace src.Controllers;
 public class PaymentMethodController : ControllerBase
 {
     private readonly JsonSerializerOptions _serializerOptions;
-    private readonly IRepository<PaymentMethod> _repository;
+    private readonly IPaymentMethodRepository _repository;
 
-    public PaymentMethodController(IRepository<PaymentMethod> repository, ILogger<PaymentMethodController> logger)
+    public PaymentMethodController(IPaymentMethodRepository repository)
     {
         _repository = repository;
         _serializerOptions = new JsonSerializerOptions
