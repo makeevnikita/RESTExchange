@@ -9,6 +9,10 @@ namespace src.Repositories;
 
 public class EFRepository<T> : IRepository<T> where T : class
 {
+    // Репозиторий для всех моделей
+    
+    // Этот код поделжит удалению, так как я решил сделать
+    // свой отдельный репозиторий для каждой модели
     private readonly ApplicationContext _context;
     private readonly DbSet<T> _dbSet;
 
@@ -49,7 +53,6 @@ public class EFRepository<T> : IRepository<T> where T : class
     public T GetById(int id)
     {
         T item = _dbSet.Find(id);
-
         return item;
     }
 
@@ -67,7 +70,6 @@ public class EFRepository<T> : IRepository<T> where T : class
 
     public void Update(T item)
     {
-        _dbSet.Update(item);
         _context.SaveChanges();
     }
 }
