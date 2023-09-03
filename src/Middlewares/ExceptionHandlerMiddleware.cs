@@ -6,6 +6,7 @@ namespace src.Middlewares;
 
 public class ExceptionHandlerMiddleware
 {
+    // Этот Middleware перехватывает исключения, которые возникают внутри контроллера
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlerMiddleware> _logger;
 
