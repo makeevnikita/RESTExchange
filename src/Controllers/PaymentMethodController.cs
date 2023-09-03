@@ -14,13 +14,13 @@ namespace src.Controllers;
 [Route("paymentmethod")]
 public class PaymentMethodController : ControllerBase
 {
-    private readonly JsonSerializerOptions serializerOptions;
+    private readonly JsonSerializerOptions _serializerOptions;
     private readonly IRepository<PaymentMethod> _repository;
 
-    public PaymentMethodController(IRepository<PaymentMethod> repository)
+    public PaymentMethodController(IRepository<PaymentMethod> repository, ILogger<PaymentMethodController> logger)
     {
         _repository = repository;
-        serializerOptions = new JsonSerializerOptions
+        _serializerOptions = new JsonSerializerOptions
         {
             WriteIndented = true,
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
@@ -28,20 +28,20 @@ public class PaymentMethodController : ControllerBase
     }
 
     [HttpPost("create")]
-    public IActionResult CreatePaymentMethod([FromBody] PaymentMethod method)
+    public IActionResult CreatePaymentMethod([FromQuery] string name)
     {   
-        if (method == null)
+        if (string.IsNullOrEmpty(name))
         {
-            throw new BadRequestException("Неверные данные");
+            throw new BadRequestException("Invalid data");
         }
         else
         {
-            _repository.Create(method);
-            return new JsonResult(new { message = "Объект успешно создан" });
+            _repository.Create(new PaymentMethod { Name = name });
+            return new JsonResult(new { message = "Object was created successfully" });
         }
     }
 
-    [HttpGet("get")]
+    [HttpGet("get_all")]
     public IActionResult Get()
     {   
         IEnumerable<PaymentMethodDto> networks = _repository.GetAll()
@@ -51,17 +51,17 @@ public class PaymentMethodController : ControllerBase
                     Name = method.Name
                 }).ToList();
 
-        return new JsonResult(networks, serializerOptions);
+        return new JsonResult(networks, _serializerOptions);
     }
 
-    [HttpGet("get/{id}")]
-    public IActionResult Get([FromRoute] int id)
+    [HttpGet("get")]
+    public IActionResult GetById([FromQuery] int id)
     {
         PaymentMethod method = _repository.GetById(id);
 
         if (method == null)
         {
-            throw new ObjectNotFoundException("Объект PaymentMethod не найден");
+            throw new ObjectNotFoundException("Object not found");
         }
 
         return new JsonResult
@@ -71,45 +71,50 @@ public class PaymentMethodController : ControllerBase
                         Id = method.Id,
                         Name = method.Name
                     },
-                serializerOptions
+                _serializerOptions
             );
     }
 
     [HttpPut("update")]
-    public IActionResult Update([FromBody] PaymentMethod method)
+    public IActionResult Update([FromQuery] int id, [FromQuery] string newName)
     {   
-        if (method == null || method.Id == 0)
+        if (id == 0 || string.IsNullOrEmpty(newName))
         {
-            throw new BadRequestException("Неверные данные");
+            throw new BadRequestException("Invalid data");
         }
-        else if (_repository.GetById(method.Id) == null)
+
+        PaymentMethod method = _repository.GetById(id); 
+
+        if (method == null)
         {
-            throw new ObjectNotFoundException("Объект PaymentMethod не найден");
+            throw new ObjectNotFoundException("Object not found");
         }
         else
         {
+            method.Name = newName;
             _repository.Update(method);
-            
-            return new JsonResult(new { message = "Объект успешно обновлён" });
+            return new JsonResult(new { message = "Object was updated successfully" });
         }   
     }
 
-    [HttpDelete("remove/{id}")]
-    public IActionResult Remove([FromRoute] int id)
+    [HttpDelete("remove")]
+    public IActionResult Remove([FromQuery] int id)
     {
-        if (id == 0)
+        if (id <= 0)
         {
-            throw new BadRequestException("id объекта не может быть равен нулю");
+            throw new BadRequestException("Invalid data");
         }
-        else if (_repository.GetById(id) == null)
+
+        PaymentMethod method = _repository.GetById(id);
+
+        if (method == null)
         {
-            throw new ObjectNotFoundException("Объект PaymentMethod не найден");
+            throw new ObjectNotFoundException("Object not found");
         }
         else
         {
-            _repository.Remove(_repository.GetById(id));
-            
-            return new JsonResult(new { message = "Объект успешно удалён" });
+            _repository.Remove(method);
+            return new JsonResult(new { message = "Object was successfully deleted" });
         }
     }
 }
