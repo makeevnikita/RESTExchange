@@ -8,8 +8,4 @@
 |**PUT** paymentmethod/update?id=3&newName=Банковская карта|id - id способа оплаты<br>newName - новое название|Изменяет способ оплаты|Object was updated successfully|
 |**DELETE** paymentmethod/remove?id=3|id - id способа оплаты|Удаляет способ оплаты|Object was successfully deleted|
 
-Валюта, которую отдаёт клиент (Bitcoin, LUNA, Сбербанк RUB, Альфабанк RUB, QIWI RUB и т.д.)
-# Эти методы уже существуют, но я опишу их позже
-|Метод|Параметры запроса|Описание|Результат|
-|---|---|---|---|
-|**GET** clientcurrency/get?id=1|id - id валюты|Возваращет валюту с id = 1||
+
